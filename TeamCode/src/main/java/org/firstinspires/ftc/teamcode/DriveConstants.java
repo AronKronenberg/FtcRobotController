@@ -23,7 +23,8 @@ public class DriveConstants {
     public static final double INTAKE_INIT_PITCH = 0.35;
     public static final double INTAKE_PITCH_SPEED = 1; // intake rotates this amount per second
     public static final double INTAKE_WHEEL_SPEED = 1;
-    public static final double INTAKE_MOTOR_SPEED = 0.75;
+    public static final double INTAKE_MOTOR_MAXIMUM_SPEED = 0.75;
+    public static final double INTAKE_MOTOR_STANDARD_SPEED = 0.5625;
 
     // encoder values for intake
     private static final double INTAKE_DISTANCE_PER_ROTATION = 120 * MM_TO_INCH; // in / r
@@ -34,7 +35,8 @@ public class DriveConstants {
 
 
     // *********** OUTAKE *************
-    public static final double OUTAKE_MOTOR_SPEED = 0.75; //4.25; // units: inches / sec TODO: set this correctly
+    public static final double OUTAKE_MOTOR_MAXIMUM_SPEED = 0.75; //4.25; // units: inches / sec TODO: set this correctly
+    public static final double OUTAKE_MOTOR_STANDARD_SPEED = 0.5625;
 
     // encoder values for outake
     public static final double MAXIMUM_OUTAKE_LENGTH = 976 * MM_TO_INCH; // in

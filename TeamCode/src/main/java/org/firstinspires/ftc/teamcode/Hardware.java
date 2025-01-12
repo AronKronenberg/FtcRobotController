@@ -190,9 +190,23 @@ public class Hardware extends DriveConstants {
 
 
 
-    // moves the entire intake a certain number of inches
-    public void setIntakePos(double speed, double inches) {
-        encoderControl(this.intakeMotor, speed, inches, INTAKE_COUNTS_PER_INCH);
+    // sets the position of the intake (the whole thing connected to the viper slide, not the actual intake)
+    public void setIntakePosition(double inches) {
+        encoderControl(intakeMotor, INTAKE_MOTOR_STANDARD_SPEED, inches, INTAKE_COUNTS_PER_INCH);
+    }
+    // uses ticks instead of inches
+    public void setIntakePosition(int ticks) {
+        encoderControl(intakeMotor, INTAKE_MOTOR_STANDARD_SPEED, ticks);
+    }
+
+    // moves the entire intake x inches
+    public void moveIntake(double inches) {
+        int ticks = (int) (inches * INTAKE_COUNTS_PER_INCH);
+        moveIntake(ticks);
+    }
+    // uses ticks instead of inches
+    public void moveIntake(int ticks) {
+        setIntakePosition(intakeMotor.getCurrentPosition() + ticks);
     }
 
     // sets the intakePitch servo position and changes the pitch value holder
@@ -203,12 +217,12 @@ public class Hardware extends DriveConstants {
     }
 
     // rotates the bucket by a specified amount
+    // really only should be used when doing manual control of the bucket
+    // speed input is in degrees/sec
     public void rotateBucket(double speed, ElapsedTime deltaTime) {
         bucketPitchVal += speed * deltaTime.time();
 
-        bucketPitchVal = constrain(bucketPitchVal, 0, 1);
-
-        bucket.setPosition(bucketPitchVal);
+        setBucketPos(bucketPitchVal);
     }
 
     // sets the bucket servo position and changes our pitch value holder
@@ -231,43 +245,65 @@ public class Hardware extends DriveConstants {
         if (op.opModeIsActive()) {
             newMotorTarget = (int) (inches * COUNTS_PER_INCH);
 
-            motor.setTargetPosition(newMotorTarget);
+            encoderControl(motor, speed, newMotorTarget);
+        }
+    }
+    // accepts integer values which signify the function is being given a position to go to in ticks and not inches
+    public void encoderControl(DcMotor motor, double speed, int ticks) {
+        if (op.opModeIsActive()) {
+            motor.setTargetPosition(ticks);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(Math.abs(speed));
 
-            while (op.opModeIsActive() && motor.isBusy()) {
+            while (op.opModeIsActive() && motor.isBusy()) {}
 
-            }
             motor.setPower(0);
-            if (motor.equals(outakeMotor)) {
-                motor.setPower(outakeController.getF());
-            }
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 
     // sets the outake to a certain position in inches
-    public void setOutakePosition(double target) {
-        int outakePos = outakeMotor.getCurrentPosition();
-        int targetPos = (int) (target * OUTAKE_COUNTS_PER_INCH);
+    // assumes we are using encoders and not PID
+    public void setOutakePosition(double inches) {
+        encoderControl(outakeMotor, OUTAKE_MOTOR_STANDARD_SPEED, inches, OUTAKE_COUNTS_PER_INCH);
+        outakeMotor.setPower(outakeController.getF());
+    }
 
-        double power = outakeController.calculate(outakePos, targetPos);
-
-        outakeMotor.setPower(power);
+    // function only works if using PID for outake
+    public void setOutakePosition(double inches, boolean usingPID) {
+        if (usingPID) {
+            int targetPos = (int) (inches * OUTAKE_COUNTS_PER_INCH);
+            setOutakePosition(targetPos, true);
+        }
+        else {
+            setOutakePosition(inches);
+        }
     }
     // if target is an integer we assume it was given with units of encoder ticks (not inches)
-    public void setOutakePosition(int target) {
-        int outakePos = outakeMotor.getCurrentPosition();
+    public void setOutakePosition(int ticks) {
+        encoderControl(outakeMotor, OUTAKE_MOTOR_STANDARD_SPEED, ticks);
+    }
+    // if target is an integer (given in encoder ticks) and we are using PID
+    public void setOutakePosition(int ticks, boolean usingPID) {
+        if (usingPID) {
+            int outakePos = outakeMotor.getCurrentPosition();
 
-        double power = outakeController.calculate(outakePos, target);
+            double power = outakeController.calculate(outakePos, ticks);
 
-        outakeMotor.setPower(power);
+            outakeMotor.setPower(power);
+        }
+        else {
+            setOutakePosition(ticks);
+        }
     }
 
     // moves the outake a certain number of inches up/down
     public void moveOutake(double inches) {
-        // convert current position to inches and add the # of inches we want to move the outake
-        double target = outakeMotor.getCurrentPosition() * (1 / OUTAKE_COUNTS_PER_INCH) + inches;
-        setOutakePosition(target);
+        moveOutake((int) (inches * OUTAKE_COUNTS_PER_INCH));
+    }
+    // moves the outake a certain number of ticks up/down
+    public void moveOutake(int ticks) {
+        int newTarget = outakeMotor.getCurrentPosition() + ticks;
+        setOutakePosition(newTarget);
     }
 }

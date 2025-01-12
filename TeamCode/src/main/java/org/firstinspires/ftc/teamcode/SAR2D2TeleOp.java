@@ -64,7 +64,7 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
             // *********** DRIVING STUFF *************
             // for switching between field centric and robot centric drive
-            // uses rises edge detection (only changes right when the button is clicked, not held)
+            // uses rising edge detection (only changes right when the button is clicked, not held)
             if (currentGamepad1.left_stick_button && !previousMain.left_stick_button) {
                 fieldCentric = !fieldCentric;
 
@@ -83,6 +83,8 @@ public class SAR2D2TeleOp extends LinearOpMode {
             double rx = gamepad1.right_stick_x; // positive --> counterclockwise, negative --> clockwise
 
             drive(x, y, rx, fieldCentric); // does all the math and tells the motors to drive
+
+
 
             // *********** INTAKE STUFF *************
             // intake pitch control
@@ -111,11 +113,13 @@ public class SAR2D2TeleOp extends LinearOpMode {
             }
 
             // intake motor control (moves the linear slides forward/back and up/down)
-            if (gamepad1.right_trigger > 0 && robot.intakeMotor.getCurrentPosition() < DriveConstants.MAXIMUM_INTAKE_COUNT) { // moves intake out (pressure sensitive)
-                robot.intakeMotor.setPower(DriveConstants.OUTAKE_MOTOR_SPEED * gamepad1.right_trigger);
+            // moves intake out/in
+            if (gamepad1.right_trigger > 0 && robot.intakeMotor.getCurrentPosition() < DriveConstants.MAXIMUM_INTAKE_COUNT) {
+                // if statement has the last term to constrict the intake to stay within the limits (20x42 rectangle rule)
+                robot.intakeMotor.setPower(DriveConstants.OUTAKE_MOTOR_MAXIMUM_SPEED * gamepad1.right_trigger); // pressure sensitive
             }
             else if (gamepad1.right_bumper) { // moves intake in (not pressure sensitive)
-                robot.intakeMotor.setPower(-DriveConstants.INTAKE_MOTOR_SPEED * 0.75);
+                robot.intakeMotor.setPower(-DriveConstants.INTAKE_MOTOR_STANDARD_SPEED);
             }
             else {
                 robot.intakeMotor.setPower(0);
@@ -126,11 +130,11 @@ public class SAR2D2TeleOp extends LinearOpMode {
             // *********** OUTAKE STUFF *************
             double outakeInput;
             if (gamepad1.left_trigger > 0) { // moves outake up (pressure sensitive)
-                outakeInput = DriveConstants.OUTAKE_MOTOR_SPEED * gamepad1.left_trigger + robot.outakeController.getF();
+                outakeInput = DriveConstants.OUTAKE_MOTOR_MAXIMUM_SPEED * gamepad1.left_trigger + robot.outakeController.getF();
                 robot.outakeMotor.setPower(outakeInput);
             }
             else if (gamepad1.left_bumper) { // moves outake down (not pressure sensitive)
-                outakeInput = -DriveConstants.OUTAKE_MOTOR_SPEED * 0.75 + robot.outakeController.getF();
+                outakeInput = -DriveConstants.OUTAKE_MOTOR_STANDARD_SPEED + robot.outakeController.getF();
                 robot.outakeMotor.setPower(outakeInput);
             }
             else {
@@ -235,12 +239,15 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
     // automatically moves the intake towards the bucket and spits out a block
     public void transferSample() {
+        telemetry.addData("Status", "Transferring...");
+        telemetry.update();
+
         robot.setIntakePitch(0.15);
         robot.intakeWheel.setPower(-DriveConstants.INTAKE_WHEEL_SPEED);
         sleep(500);
         robot.intakeWheel.setPower(0);
         robot.setIntakePitch(DriveConstants.INTAKE_INIT_PITCH);
-        robot.encoderControl(robot.outakeMotor, DriveConstants.OUTAKE_MOTOR_SPEED, 5, DriveConstants.OUTAKE_COUNTS_PER_INCH);
+        robot.setOutakePosition(5.0);
         robot.setBucketPos(0.4);
     }
 }
