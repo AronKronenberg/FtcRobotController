@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.TwoTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -34,17 +33,19 @@ import java.util.List;
  *    \--------------/
  *
  */
-@Config
 public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double TICKS_PER_REV = 2000;
-    public static double WHEEL_RADIUS = 0.9448818899; // in // 0.906
+    public static double WHEEL_RADIUS = 0.629921; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double PARALLEL_X = 3.5; // X is the up and down direction
-    public static double PARALLEL_Y = 4.4; // Y is the strafe direction
+    public static double PARALLEL_X = 3.25; // X is the up and down direction
+    public static double PARALLEL_Y = 4.8; // Y is the strafe direction
 
-    public static double PERPENDICULAR_X = -6.25;
+    public static double PERPENDICULAR_X = -7;
     public static double PERPENDICULAR_Y = 2;
+
+    public static double X_MULTIPLIER = 1;
+    public static double Y_MULTIPLIER = 1;
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
@@ -52,10 +53,6 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     private Encoder parallelEncoder, perpendicularEncoder;
 
     private SampleMecanumDrive drive;
-
-
-    public static double X_MULTIPLIER = 0.594996417666667; // 0.997526417666667
-    public static double Y_MULTIPLIER = 0.58045549; // 0.998045549
 
     public TwoWheelTrackingLocalizer(HardwareMap hardwareMap, SampleMecanumDrive drive) {
         super(Arrays.asList(

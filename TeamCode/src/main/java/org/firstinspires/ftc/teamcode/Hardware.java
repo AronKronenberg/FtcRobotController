@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -18,18 +17,23 @@ public class Hardware extends DriveConstants {
 
     public IMU imu;
 
+
+    // *********** MOTORS *************
+    // drive motors
     public DcMotor frontLeft; //3
     public DcMotor backLeft; //2
     public DcMotor frontRight; //1
     public DcMotor backRight; //0
 
-    public Servo intakePitch; // moves intake up and down
-
-    public CRServo intakeWheel; // rotates the wheel to intake samples
-
     public DcMotor intakeMotor;
     public DcMotor outakeMotor;
 
+
+
+    // *********** SERVOS *************
+    public Servo intakePitch; // moves intake up and down
+
+    public CRServo intakeWheel; // rotates the wheel to intake samples
 
     public Servo bucket;
     public enum BucketState {
@@ -90,12 +94,16 @@ public class Hardware extends DriveConstants {
     }
 
 
+
+    // *********** USEFUL VARIABLES *************
     public PIDFController outakeController = new PIDFController(0.01, 0, 0, 0.1);
 
     // Non-hardware objects
-    double intakePitchVal = 0.35;
+    double intakePitchVal = INTAKE_INIT_PITCH;
 
     double bucketPitchVal = BUCKET_IN;
+
+
 
     // initialization method (could just be a constructor)
     public void init(LinearOpMode opMode) {
@@ -180,9 +188,18 @@ public class Hardware extends DriveConstants {
         intakePitch.setPosition(intakePitchVal);
     }
 
+
+
     // moves the entire intake a certain number of inches
     public void setIntakePos(double speed, double inches) {
         encoderControl(this.intakeMotor, speed, inches, INTAKE_COUNTS_PER_INCH);
+    }
+
+    // sets the intakePitch servo position and changes the pitch value holder
+    // use this function: DO NOT use intakePitch.setPosition (as it won't update intakePitchVal)
+    public void setIntakePitch(double val) {
+        intakePitch.setPosition(val);
+        intakePitchVal = constrain(val, 0, 1);
     }
 
     // rotates the bucket by a specified amount
@@ -192,6 +209,13 @@ public class Hardware extends DriveConstants {
         bucketPitchVal = constrain(bucketPitchVal, 0, 1);
 
         bucket.setPosition(bucketPitchVal);
+    }
+
+    // sets the bucket servo position and changes our pitch value holder
+    // use this function whenever setting the bucket value. DO NOT use bucket.setPosition()
+    public void setBucketPos(double pos) {
+        bucket.setPosition(pos);
+        bucketPitchVal = constrain(pos, 0, 1);
     }
 
     public double constrain(double n, double min, double max) {

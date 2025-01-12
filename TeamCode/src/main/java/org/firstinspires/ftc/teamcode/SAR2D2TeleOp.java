@@ -24,15 +24,12 @@ public class SAR2D2TeleOp extends LinearOpMode {
     public static double driveSpeed = DriveConstants.NORMAL_SPEED;
     public static boolean fieldCentric = false;
 
-    public static double clawVal = 0;
-
     ElapsedTime deltaTime;
     ElapsedTime runtime;
 
     // gamepads
     Gamepad previousMain = new Gamepad();
     Gamepad previousSecondary = new Gamepad();
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -67,8 +64,8 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
             // *********** DRIVING STUFF *************
             // for switching between field centric and robot centric drive
-            // uses falling edge detection (only changes after the button is let go, not held)
-            if (!currentGamepad1.left_stick_button && previousMain.left_stick_button) {
+            // uses rises edge detection (only changes right when the button is clicked, not held)
+            if (currentGamepad1.left_stick_button && !previousMain.left_stick_button) {
                 fieldCentric = !fieldCentric;
 
                 gamepad1.rumble(250);
@@ -96,11 +93,17 @@ public class SAR2D2TeleOp extends LinearOpMode {
                 robot.rotateIntake(DriveConstants.INTAKE_PITCH_SPEED, deltaTime);
             }
 
+            // automatic transfer from intake to outake
+            // uses falling edge detection
+            if (!currentGamepad1.touchpad && previousMain.touchpad) {
+                transferSample();
+            }
+
             // intake wheel control
-            if (gamepad1.x) {
+            if (gamepad1.x) { // intake sample
                 robot.intakeWheel.setPower(DriveConstants.INTAKE_WHEEL_SPEED);
             }
-            else if (gamepad1.a) {
+            else if (gamepad1.a) { // outake sample
                 robot.intakeWheel.setPower(-DriveConstants.INTAKE_WHEEL_SPEED);
             }
             else {
@@ -137,10 +140,9 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
             // ************* BUCKET STUFF *************
             // There are two modes for the bucket: automatic and manual. This is code for automatic.
-            if (!currentGamepad1.dpad_up && previousMain.dpad_up) {
+            if (currentGamepad1.dpad_up && !previousMain.dpad_up) {
                 Hardware.BucketState.toggleState();
-                robot.bucketPitchVal = Hardware.BucketState.getActiveState().getValue();
-                robot.bucket.setPosition(robot.bucketPitchVal);
+                robot.setBucketPos(Hardware.BucketState.getActiveState().getValue());
             }
             // manual
 //            if (gamepad1.dpad_up) {
@@ -151,7 +153,7 @@ public class SAR2D2TeleOp extends LinearOpMode {
 //            }
 
             // ************* CLAW STUFF *************
-            if (!currentGamepad1.dpad_right && previousMain.dpad_right) {
+            if (currentGamepad1.dpad_right && !previousMain.dpad_right) {
                 Hardware.ClawState.toggleState();
                 robot.claw.setPosition(Hardware.ClawState.getActiveState().getValue());
             }
@@ -229,5 +231,16 @@ public class SAR2D2TeleOp extends LinearOpMode {
     public void setLEDColor(boolean fieldCentric) {
         if (fieldCentric) gamepad1.setLedColor(0, 1, 0, Gamepad.LED_DURATION_CONTINUOUS);
         else gamepad1.setLedColor(1, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+    }
+
+    // automatically moves the intake towards the bucket and spits out a block
+    public void transferSample() {
+        robot.setIntakePitch(0.15);
+        robot.intakeWheel.setPower(-DriveConstants.INTAKE_WHEEL_SPEED);
+        sleep(500);
+        robot.intakeWheel.setPower(0);
+        robot.setIntakePitch(DriveConstants.INTAKE_INIT_PITCH);
+        robot.encoderControl(robot.outakeMotor, DriveConstants.OUTAKE_MOTOR_SPEED, 5, DriveConstants.OUTAKE_COUNTS_PER_INCH);
+        robot.setBucketPos(0.4);
     }
 }
