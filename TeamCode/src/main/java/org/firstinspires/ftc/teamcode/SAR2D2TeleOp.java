@@ -166,8 +166,6 @@ public class SAR2D2TeleOp extends LinearOpMode {
             previousMain.copy(currentGamepad1);
             previousSecondary.copy(currentGamepad2);
 
-
-
             // *********** TELEMETRY *************
             // send back data on current pos of outake and the target pos we want it to be at (both in inches)
             double outakePos = robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH;
@@ -242,11 +240,13 @@ public class SAR2D2TeleOp extends LinearOpMode {
         telemetry.addData("Status", "Transferring...");
         telemetry.update();
 
-        robot.setIntakePitch(0.15);
+        robot.setIntakePitch(0.3);
+        sleep(750);
         robot.intakeWheel.setPower(-DriveConstants.INTAKE_WHEEL_SPEED);
-        sleep(500);
+        sleep(1000);
         robot.intakeWheel.setPower(0);
-        robot.setIntakePitch(DriveConstants.INTAKE_INIT_PITCH);
+        robot.setIntakePitch(0.55);
+        sleep(750);
         robot.setOutakePosition(5.0);
         robot.setBucketPos(0.4);
     }

@@ -178,7 +178,7 @@ public class Hardware extends DriveConstants {
         backRight.setMode(mode);
     }
 
-    // rotates the intake servo by a specific amount
+    // rotates the intake servo by a specific amount using time
     public void rotateIntake(double speed, ElapsedTime deltaTime) {
         intakePitchVal += speed * deltaTime.time();
 
@@ -186,6 +186,12 @@ public class Hardware extends DriveConstants {
         if (intakePitchVal < 0) intakePitchVal = 0;
 
         intakePitch.setPosition(intakePitchVal);
+    }
+
+    public void rotateIntake(double degrees) {
+        intakePitchVal += degrees / 360;
+
+        setIntakePitch(intakePitchVal);
     }
 
 
@@ -269,6 +275,11 @@ public class Hardware extends DriveConstants {
         outakeMotor.setPower(outakeController.getF());
     }
 
+    public void setOutakePosition(double speed, double inches) {
+        encoderControl(outakeMotor, speed, inches, OUTAKE_COUNTS_PER_INCH);
+        outakeMotor.setPower(outakeController.getF());
+    }
+
     // function only works if using PID for outake
     public void setOutakePosition(double inches, boolean usingPID) {
         if (usingPID) {
@@ -282,6 +293,10 @@ public class Hardware extends DriveConstants {
     // if target is an integer we assume it was given with units of encoder ticks (not inches)
     public void setOutakePosition(int ticks) {
         encoderControl(outakeMotor, OUTAKE_MOTOR_STANDARD_SPEED, ticks);
+    }
+
+    public void setOutakePosition(double speed, int ticks) {
+        encoderControl(outakeMotor, speed, ticks);
     }
     // if target is an integer (given in encoder ticks) and we are using PID
     public void setOutakePosition(int ticks, boolean usingPID) {
@@ -301,9 +316,20 @@ public class Hardware extends DriveConstants {
     public void moveOutake(double inches) {
         moveOutake((int) (inches * OUTAKE_COUNTS_PER_INCH));
     }
+
+    public void moveOutake(double speed, double inches) {
+        setOutakePosition(speed, (int) (inches * OUTAKE_COUNTS_PER_INCH));
+    }
     // moves the outake a certain number of ticks up/down
     public void moveOutake(int ticks) {
         int newTarget = outakeMotor.getCurrentPosition() + ticks;
         setOutakePosition(newTarget);
+    }
+
+    public void openClaw() {
+        claw.setPosition(ClawState.CLAW_OPEN.value);
+    }
+    public void closeClaw() {
+        claw.setPosition(ClawState.CLAW_CLOSED.value);
     }
 }
