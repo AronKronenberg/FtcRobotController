@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -96,7 +97,11 @@ public class Hardware extends DriveConstants {
 
 
     // *********** USEFUL VARIABLES *************
-    public PIDFController outakeController = new PIDFController(0.01, 0, 0, 0.1);
+    public PIDFController outakeController = new PIDController(0.04, 0, 0.001);
+    public double outakeTarget = 0;
+    public double kF = 0.1;
+    public PIDController intakeController = new PIDController(0.01, 0, 0);
+    public double intakeTarget = 0;
 
     // Non-hardware objects
     double intakePitchVal = INTAKE_INIT_PITCH;
@@ -331,5 +336,17 @@ public class Hardware extends DriveConstants {
     }
     public void closeClaw() {
         claw.setPosition(ClawState.CLAW_CLOSED.value);
+    }
+
+    public void updateOutake() {
+        double power = outakeController.calculate(outakeMotor.getCurrentPosition() / OUTAKE_COUNTS_PER_INCH, outakeTarget) + kF;
+
+        outakeMotor.setPower(power);
+    }
+
+    public void updateIntake() {
+        double power = intakeController.calculate(intakeMotor.getCurrentPosition() / INTAKE_COUNTS_PER_INCH, intakeTarget);
+
+        intakeMotor.setPower(power);
     }
 }
