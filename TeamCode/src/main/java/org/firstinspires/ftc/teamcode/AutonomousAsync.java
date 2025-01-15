@@ -38,6 +38,8 @@ public class AutonomousAsync extends LinearOpMode {
 
     Pose2d startPose = new Pose2d(0, 0, 0);
 
+    boolean manualOutake = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
         Hardware robot = new Hardware();
@@ -111,16 +113,21 @@ public class AutonomousAsync extends LinearOpMode {
             // our state machine logic
             switch (currentState) {
                 case DRIVE_TO_BAR:
-                    if (!drive.isBusy()) {
+                    if (!drive.isBusy() && !robot.outakeIsBusy) {
                         currentState = State.RETRACT_OUTAKE;
-//                        robot.outakeMotor.setPower(-0.5);
-//                        sleep(500);
+                        robot.outakeMotor.setPower(-0.5);
+                        manualOutake = true;
+                        time.reset();
                     }
                     break;
                 case RETRACT_OUTAKE:
-                    currentState = State.OPEN_CLAW;
-                    robot.openClaw();
-                    time.reset();
+                    if(time.milliseconds() >= 500) {
+                        robot.outakeMotor.setPower(0);
+                        manualOutake = false;
+                        currentState = State.OPEN_CLAW;
+                        robot.openClaw();
+                        time.reset();
+                    }
 
                     break;
                 case OPEN_CLAW:
@@ -151,10 +158,11 @@ public class AutonomousAsync extends LinearOpMode {
                     if (!drive.isBusy()) {
                         currentState = State.DRIVE_TO_SPECIMEN_ONE;
                         drive.followTrajectoryAsync(drive_to_specimen_one);
+                        robot.outakeTarget = 4;
                     }
                     break;
                 case DRIVE_TO_SPECIMEN_ONE:
-                    if (!drive.isBusy()) {
+                    if (!drive.isBusy() && !robot.outakeIsBusy) {
                         currentState = State.CLOSE_CLAW;
                         robot.closeClaw();
                         time.reset();
@@ -167,7 +175,7 @@ public class AutonomousAsync extends LinearOpMode {
                     }
                     break;
                 case LIFT_OUTAKE_AWAY:
-                    if (!robot.outakeMotor.isBusy()) {
+                    if (!robot.outakeIsBusy) {
                         currentState = State.DRIVE_TO_BAR_SS;
                         drive.followTrajectoryAsync(drive_to_bar_ss);
                     }
@@ -176,13 +184,18 @@ public class AutonomousAsync extends LinearOpMode {
                     if (!drive.isBusy()) {
                         currentState = State.RETRACT_OUTAKE_SS;
                         robot.outakeMotor.setPower(-0.5);
-                        sleep(500);
+                        manualOutake = true;
+                        time.reset();
                     }
                     break;
                 case RETRACT_OUTAKE_SS:
-                    currentState = State.OPEN_CLAW_SS;
-                    robot.openClaw();
-                    time.reset();
+                    if (time.milliseconds() >= 500) {
+                        robot.outakeMotor.setPower(0);
+                        manualOutake = false;
+                        currentState = State.OPEN_CLAW_SS;
+                        robot.openClaw();
+                        time.reset();
+                    }
 
                     break;
                 case OPEN_CLAW_SS:
@@ -205,7 +218,7 @@ public class AutonomousAsync extends LinearOpMode {
                     }
                     break;
                 case LIFT_OUTAKE_TS:
-                    if (!robot.outakeMotor.isBusy()) {
+                    if (!robot.outakeIsBusy) {
                         currentState = State.DRIVE_TO_BAR_TS;
                         drive.followTrajectoryAsync(drive_to_bar_ts);
                     }
@@ -214,17 +227,28 @@ public class AutonomousAsync extends LinearOpMode {
                     if (!drive.isBusy()) {
                         currentState = State.RETRACT_OUTAKE_TS;
                         robot.outakeMotor.setPower(-0.5);
-                        sleep(500);
+                        manualOutake = true;
+                        time.reset();
                     }
                     break;
+                case RETRACT_OUTAKE_TS:
+                    if (time.milliseconds() >= 500) {
+                        robot.outakeMotor.setPower(0);
+                        manualOutake = false;
+                        robot.openClaw();
+                        time.reset();
+                    }
                 case OPEN_CLAW_TS:
-                    robot.openClaw();
+                    if (time.milliseconds() >= 500) {
+                        currentState = State.IDLE;
+                    }
                     break;
                 case IDLE:
                     break;
             }
             drive.update();
-            robot.updateOutake();
+
+            if (!manualOutake) robot.updateOutake();
 
             Pose2d poseEstimate = drive.getPoseEstimate();
 
@@ -232,6 +256,8 @@ public class AutonomousAsync extends LinearOpMode {
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.addData("Current State", currentState);
+            String outakeBusy = robot.outakeMotor.isBusy() ? "is busy" : "is not busy";
+            telemetry.addData("Outake", outakeBusy);
             telemetry.update();
         }
     }
