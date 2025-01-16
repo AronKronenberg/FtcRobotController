@@ -3,9 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.drive.Drive;
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,10 +11,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class PIDTester extends LinearOpMode {
     Hardware robot = new Hardware();
 
-    public static double intakeTarget;
-    public static double outakeTarget;
+    public static double kP = Hardware.outakeController.getP();
+    public static double kI = Hardware.outakeController.getI();
+    public static double kD = Hardware.outakeController.getD();
+    public static double kF = Hardware.kF;
 
-    boolean isBusyAtAll = false;
+    public static double outakeTarget;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -28,37 +27,23 @@ public class PIDTester extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            robot.outakeTarget = outakeTarget;
+            Hardware.outakeController.setPID(kP, kI, kD);
+            Hardware.kF = kF;
 
-            robot.updateOutake();
-            // updateIntake(intakeTarget);
+            robot.setOutakeTarget(outakeTarget);
 
-            telemetry.addData("target outake", outakeTarget);
-            telemetry.addData("current pos outake", robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH);
+            double error = robot.updateOutake();
 
-            telemetry.addData("target intake", intakeTarget);
-            telemetry.addData("current pos intake", robot.intakeMotor.getCurrentPosition() / DriveConstants.INTAKE_COUNTS_PER_INCH);
+            telemetry.addData("target", outakeTarget * DriveConstants.OUTAKE_COUNTS_PER_INCH);
+            telemetry.addData("pos", robot.outakeMotor.getCurrentPosition());
+            telemetry.addData("error", error);
 
-            if (robot.outakeIsBusy) {
-                isBusyAtAll = true;
-            }
+            telemetry.addLine();
 
-            telemetry.addData("Outake is busy", robot.outakeIsBusy);
-            telemetry.addData("Is Busy", isBusyAtAll);
+            String isBusyState = robot.isOutakeBusy() ? "is busy" : "is not busy";
+            telemetry.addData("Outake", isBusyState);
 
             telemetry.update();
         }
-    }
-
-    public void updateOutake(double target) {
-        double power = robot.outakeController.calculate(robot.outakeMotor.getCurrentPosition(), target * DriveConstants.OUTAKE_COUNTS_PER_INCH) + robot.kF;
-
-        robot.outakeMotor.setPower(power);
-    }
-
-    public void updateIntake(double target) {
-        double power = robot.intakeController.calculate(robot.intakeMotor.getCurrentPosition(), target * DriveConstants.INTAKE_COUNTS_PER_INCH);
-
-        robot.intakeMotor.setPower(power);
     }
 }

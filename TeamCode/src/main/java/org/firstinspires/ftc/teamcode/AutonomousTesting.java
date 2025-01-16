@@ -124,7 +124,6 @@ public class AutonomousTesting extends LinearOpMode {
                 drive.followTrajectorySequence(pushAndReset1);
 
                 robot.setIntakePosition(0.0);
-                robot.setIntakePosition(0.0);
                 robot.setOutakePosition(0.0);
 
                 Trajectory moveToSpecimens = drive.trajectoryBuilder(pushAndReset1.end())

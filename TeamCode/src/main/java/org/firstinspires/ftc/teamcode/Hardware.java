@@ -97,16 +97,11 @@ public class Hardware extends DriveConstants {
 
 
     // *********** USEFUL VARIABLES *************
-    public PIDFController outakeController = new PIDController(0.04, 0, 0.001);
-    public double outakeTarget = 0;
-    public double kF = 0.1;
+    public static PIDController outakeController = new PIDController(0.04, 0, 0.001);
+    private double outakeTarget = 0;
+    public static double kF = 0.1;
 
-    public boolean outakeIsBusy = false;
-
-    public PIDController intakeController = new PIDController(0.01, 0, 0);
-    public double intakeTarget = 0;
-
-    public boolean intakeIsBusy = false;
+    private boolean isOutakeBusy = false;
 
     // Non-hardware objects
     double intakePitchVal = INTAKE_INIT_PITCH;
@@ -343,21 +338,29 @@ public class Hardware extends DriveConstants {
         claw.setPosition(ClawState.CLAW_CLOSED.value);
     }
 
-    public void updateOutake() {
+    public void setOutakeTarget(double target) {
+        outakeTarget = target;
+    }
+
+    public boolean isOutakeBusy() {
+        return isOutakeBusy;
+    }
+
+    public double updateOutake() {
+        return updateOutake(0.5);
+    }
+
+    public double updateOutake(double tolerance) {
         double pv = outakeMotor.getCurrentPosition() / OUTAKE_COUNTS_PER_INCH;
         double error = Math.abs(outakeTarget - pv);
 
-        if (error <= 0.5) outakeIsBusy = false;
-        else outakeIsBusy = true;
+        if (error <= tolerance) isOutakeBusy = false;
+        else isOutakeBusy = true;
 
         double power = outakeController.calculate(outakeMotor.getCurrentPosition(), outakeTarget * OUTAKE_COUNTS_PER_INCH) + kF;
 
         outakeMotor.setPower(power);
-    }
 
-    public void updateIntake() {
-        double power = intakeController.calculate(intakeMotor.getCurrentPosition() / INTAKE_COUNTS_PER_INCH, intakeTarget);
-
-        intakeMotor.setPower(power);
+        return error;
     }
 }

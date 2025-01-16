@@ -105,7 +105,7 @@ public class AutonomousAsync extends LinearOpMode {
 
         currentState = State.DRIVE_TO_BAR;
         drive.followTrajectoryAsync(drive_to_bar);
-        robot.outakeTarget = 19.0;
+        robot.setOutakeTarget(19.0);
 
         ElapsedTime time = new ElapsedTime();
 
@@ -113,7 +113,7 @@ public class AutonomousAsync extends LinearOpMode {
             // our state machine logic
             switch (currentState) {
                 case DRIVE_TO_BAR:
-                    if (!drive.isBusy() && !robot.outakeIsBusy) {
+                    if (!drive.isBusy() && !robot.isOutakeBusy()) {
                         currentState = State.RETRACT_OUTAKE;
                         robot.outakeMotor.setPower(-0.5);
                         manualOutake = true;
@@ -158,11 +158,11 @@ public class AutonomousAsync extends LinearOpMode {
                     if (!drive.isBusy()) {
                         currentState = State.DRIVE_TO_SPECIMEN_ONE;
                         drive.followTrajectoryAsync(drive_to_specimen_one);
-                        robot.outakeTarget = 4;
+                        robot.setOutakeTarget(4);
                     }
                     break;
                 case DRIVE_TO_SPECIMEN_ONE:
-                    if (!drive.isBusy() && !robot.outakeIsBusy) {
+                    if (!drive.isBusy() && !robot.isOutakeBusy()) {
                         currentState = State.CLOSE_CLAW;
                         robot.closeClaw();
                         time.reset();
@@ -171,11 +171,11 @@ public class AutonomousAsync extends LinearOpMode {
                 case CLOSE_CLAW:
                     if (time.milliseconds() >= 500) {
                         currentState = State.LIFT_OUTAKE_AWAY;
-                        robot.outakeTarget = 19.0;
+                        robot.setOutakeTarget(19.0);
                     }
                     break;
                 case LIFT_OUTAKE_AWAY:
-                    if (!robot.outakeIsBusy) {
+                    if (!robot.isOutakeBusy()) {
                         currentState = State.DRIVE_TO_BAR_SS;
                         drive.followTrajectoryAsync(drive_to_bar_ss);
                     }
@@ -214,11 +214,11 @@ public class AutonomousAsync extends LinearOpMode {
                 case CLOSE_CLAW_TS:
                     if (time.milliseconds() >= 500) {
                         currentState = State.LIFT_OUTAKE_TS;
-                        robot.outakeTarget = 19;
+                        robot.setOutakeTarget(19.0);
                     }
                     break;
                 case LIFT_OUTAKE_TS:
-                    if (!robot.outakeIsBusy) {
+                    if (!robot.isOutakeBusy()) {
                         currentState = State.DRIVE_TO_BAR_TS;
                         drive.followTrajectoryAsync(drive_to_bar_ts);
                     }
