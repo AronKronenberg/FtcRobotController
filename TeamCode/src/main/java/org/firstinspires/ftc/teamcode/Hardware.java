@@ -97,7 +97,7 @@ public class Hardware extends DriveConstants {
 
 
     // *********** USEFUL VARIABLES *************
-    public static PIDController outakeController = new PIDController(0.04, 0, 0.001);
+    public static PIDController outakeController = new PIDController(0.3, 0.05, 0.001);
     private double outakeTarget = 0;
     public static double kF = 0.1;
 
@@ -347,7 +347,7 @@ public class Hardware extends DriveConstants {
     }
 
     public double updateOutake() {
-        return updateOutake(0.5);
+        return updateOutake(0.7);
     }
 
     public double updateOutake(double tolerance) {
@@ -357,10 +357,12 @@ public class Hardware extends DriveConstants {
         if (error <= tolerance) isOutakeBusy = false;
         else isOutakeBusy = true;
 
-        double power = outakeController.calculate(outakeMotor.getCurrentPosition(), outakeTarget * OUTAKE_COUNTS_PER_INCH) + kF;
+        double power = outakeController.calculate(pv, outakeTarget) + kF;
 
         outakeMotor.setPower(power);
 
         return error;
     }
+
+
 }

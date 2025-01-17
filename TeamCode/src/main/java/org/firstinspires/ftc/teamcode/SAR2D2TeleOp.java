@@ -117,7 +117,7 @@ public class SAR2D2TeleOp extends LinearOpMode {
             else if (gamepad1.a && !isTransferring) { // outake sample
                 robot.intakeWheel.setPower(-INTAKE_WHEEL_SPEED);
             }
-            else {
+            else if (!isTransferring){
                 robot.intakeWheel.setPower(0);
             }
 
@@ -152,7 +152,7 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
             // ************* BUCKET STUFF *************
             // There are two modes for the bucket: automatic and manual. This is code for automatic.
-            if (currentGamepad1.dpad_up && !previousMain.dpad_up) {
+            if (currentGamepad2.dpad_up && !previousSecondary.dpad_up) {
                 Hardware.BucketState.toggleState();
                 robot.setBucketPos(Hardware.BucketState.getActiveState().getValue());
             }
@@ -165,7 +165,7 @@ public class SAR2D2TeleOp extends LinearOpMode {
 //            }
 
             // ************* CLAW STUFF *************
-            if (currentGamepad1.dpad_right && !previousMain.dpad_right) {
+            if (currentGamepad2.dpad_right && !previousSecondary.dpad_right) {
                 Hardware.ClawState.toggleState();
                 robot.claw.setPosition(Hardware.ClawState.getActiveState().getValue());
             }
@@ -251,14 +251,14 @@ public class SAR2D2TeleOp extends LinearOpMode {
         if (time.milliseconds() <= 750) {
             robot.setIntakePitch(0.3);
         }
-        else if (time.milliseconds() <= 1750) {
-            robot.intakeWheel.setPower(-INTAKE_WHEEL_SPEED);
+        else if (time.milliseconds() <= 1250) {
+            robot.intakeWheel.setPower(-1);
         }
-        else if (time.milliseconds() <= 2500) {
+        else if (time.milliseconds() <= 1500) {
             robot.intakeWheel.setPower(0);
             robot.setIntakePitch(0.55);
         }
-        else if (time.milliseconds() <= 3000) {
+        else if (time.milliseconds() <= 1750) {
             robot.setOutakeTarget(5.0);
             robot.updateOutake();
             robot.setBucketPos(0.4);

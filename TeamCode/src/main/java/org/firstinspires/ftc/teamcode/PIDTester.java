@@ -5,6 +5,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 @TeleOp
@@ -18,24 +20,51 @@ public class PIDTester extends LinearOpMode {
 
     public static double outakeTarget;
 
+    public static double targetIncrease = 2;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(this);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        Gamepad currentGamepad = new Gamepad();
+        Gamepad previousGamepad = new Gamepad();
+
+        ElapsedTime time = new ElapsedTime();
+
         waitForStart();
 
         while (opModeIsActive()) {
+            currentGamepad.copy(gamepad1);
+
             Hardware.outakeController.setPID(kP, kI, kD);
             Hardware.kF = kF;
+
+            time.reset();
+            while (gamepad1.dpad_up) {
+                if (time.milliseconds() >= 500) {
+                    outakeTarget += targetIncrease;
+                    telemetry.addData("target", outakeTarget * DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                    telemetry.update();
+                    time.reset();
+                }
+            }
+            while (gamepad1.dpad_down) {
+                if (time.milliseconds() >= 500) {
+                    outakeTarget -= targetIncrease;
+                    telemetry.addData("target", outakeTarget * DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                    telemetry.update();
+                    time.reset();
+                }
+            }
 
             robot.setOutakeTarget(outakeTarget);
 
             double error = robot.updateOutake();
 
-            telemetry.addData("target", outakeTarget * DriveConstants.OUTAKE_COUNTS_PER_INCH);
-            telemetry.addData("pos", robot.outakeMotor.getCurrentPosition());
+            telemetry.addData("target", outakeTarget);
+            telemetry.addData("pos", robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH);
             telemetry.addData("error", error);
 
             telemetry.addLine();
