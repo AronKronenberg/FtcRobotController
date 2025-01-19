@@ -219,7 +219,7 @@ public class SAR2D2Auto extends LinearOpMode {
                         time.reset();
                     }
                 case WAIT_TSP:
-                    if (time.milliseconds() >= 750) {
+                    if (time.milliseconds() >= 1000) {
                         currentState = State.PLACE_TSP;
                         drive.followTrajectorySequenceAsync(place_tsp);
                     }

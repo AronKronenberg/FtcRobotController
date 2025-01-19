@@ -5,9 +5,11 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -88,6 +90,21 @@ public class SAR2D2TeleOp extends LinearOpMode {
             double rx = gamepad1.right_stick_x; // positive --> counterclockwise, negative --> clockwise
 
             drive(x, y, rx, fieldCentric); // does all the math and tells the motors to drive
+
+            // resets the gyroscope in case ESD screws it up
+            if (gamepad2.a) {
+                // set the gyro parameters
+                IMU.Parameters parameters = new IMU.Parameters(
+                        new RevHubOrientationOnRobot(
+                                LOGO_FACING_DIR,
+                                USB_FACING_DIR
+                        )
+                );
+
+                // initialize the gyro with these parameters
+                robot.imu.initialize(parameters);
+                robot.imu.resetYaw();
+            }
 
 
 

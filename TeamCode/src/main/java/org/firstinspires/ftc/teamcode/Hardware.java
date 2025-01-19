@@ -187,8 +187,7 @@ public class Hardware extends DriveConstants {
     public void rotateIntake(double speed, ElapsedTime deltaTime) {
         intakePitchVal += speed * deltaTime.time();
 
-        if (intakePitchVal > 1) intakePitchVal = 1;
-        if (intakePitchVal < 0) intakePitchVal = 0;
+        constrain(intakePitchVal, 0, 1);
 
         intakePitch.setPosition(intakePitchVal);
     }
