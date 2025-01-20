@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 
 @Config
 @TeleOp
@@ -45,7 +46,7 @@ public class PIDTester extends LinearOpMode {
             while (gamepad1.dpad_up) {
                 if (time.milliseconds() >= 500) {
                     outakeTarget += targetIncrease;
-                    telemetry.addData("target", outakeTarget * DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                    telemetry.addData("target", outakeTarget * OUTAKE_COUNTS_PER_INCH);
                     telemetry.update();
                     time.reset();
                 }
@@ -53,7 +54,7 @@ public class PIDTester extends LinearOpMode {
             while (gamepad1.dpad_down) {
                 if (time.milliseconds() >= 500) {
                     outakeTarget -= targetIncrease;
-                    telemetry.addData("target", outakeTarget * DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                    telemetry.addData("target", outakeTarget * OUTAKE_COUNTS_PER_INCH);
                     telemetry.update();
                     time.reset();
                 }
@@ -64,7 +65,7 @@ public class PIDTester extends LinearOpMode {
             double error = robot.updateOutake();
 
             telemetry.addData("target", outakeTarget);
-            telemetry.addData("pos", robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH);
+            telemetry.addData("pos", robot.outakeMotor.getCurrentPosition() / OUTAKE_COUNTS_PER_INCH);
             telemetry.addData("error", error);
 
             telemetry.addLine();

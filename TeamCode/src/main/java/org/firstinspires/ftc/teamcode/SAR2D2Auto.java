@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 
 @Autonomous(name="Autonomous", preselectTeleOp = "TeleOp")
 public class SAR2D2Auto extends LinearOpMode {
@@ -89,8 +90,8 @@ public class SAR2D2Auto extends LinearOpMode {
 
         TrajectorySequence place_tsp = drive.trajectorySequenceBuilder(pick_up_tsp.end())
                 .strafeRight(3)
-                .lineToLinearHeading(new Pose2d(24.25, 8, Math.toRadians(-90)))
-                .strafeLeft(3)
+                .lineToLinearHeading(new Pose2d(22.25, 8, Math.toRadians(-90)))
+                .strafeLeft(3.5)
                 .build();
 
 
@@ -124,7 +125,7 @@ public class SAR2D2Auto extends LinearOpMode {
                     if (time.milliseconds() >= 500) {
                         robot.outakeMotor.setPower(0);
                         manualOutake = false;
-                        robot.setOutakeTarget(robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                        robot.setOutakeTarget(robot.outakeMotor.getCurrentPosition() / OUTAKE_COUNTS_PER_INCH);
                         currentState = State.OPEN_CLAW_FSP;
                         robot.openClaw();
                         time.reset();
@@ -193,7 +194,7 @@ public class SAR2D2Auto extends LinearOpMode {
                     if (time.milliseconds() >= 500) {
                         manualOutake = false;
                         robot.outakeMotor.setPower(0);
-                        robot.setOutakeTarget(robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                        robot.setOutakeTarget(robot.outakeMotor.getCurrentPosition() / OUTAKE_COUNTS_PER_INCH);
                         currentState = State.OPEN_CLAW_SSP;
                         robot.openClaw();
                         time.reset();
@@ -238,7 +239,7 @@ public class SAR2D2Auto extends LinearOpMode {
                         currentState = State.OPEN_CLAW_TSP;
                         manualOutake = false;
                         robot.outakeMotor.setPower(0);
-                        robot.setOutakeTarget(robot.outakeMotor.getCurrentPosition() / DriveConstants.OUTAKE_COUNTS_PER_INCH);
+                        robot.setOutakeTarget(robot.outakeMotor.getCurrentPosition() / OUTAKE_COUNTS_PER_INCH);
                         robot.openClaw();
                         time.reset();
                     }

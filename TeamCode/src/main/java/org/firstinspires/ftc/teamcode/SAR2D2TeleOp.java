@@ -156,11 +156,11 @@ public class SAR2D2TeleOp extends LinearOpMode {
             // *********** OUTAKE STUFF *************
             double outakeInput = Hardware.kF;
             if (gamepad1.left_trigger > 0 && !isTransferring) { // moves outake up (pressure sensitive)
-                outakeInput = OUTAKE_MOTOR_MAXIMUM_SPEED * gamepad1.left_trigger + Hardware.kF;
+                outakeInput += OUTAKE_MOTOR_MAXIMUM_SPEED * gamepad1.left_trigger;
                 robot.outakeMotor.setPower(outakeInput);
             }
             else if (gamepad1.left_bumper && !isTransferring) { // moves outake down (not pressure sensitive)
-                outakeInput = -OUTAKE_MOTOR_STANDARD_SPEED + Hardware.kF;
+                outakeInput -= OUTAKE_MOTOR_STANDARD_SPEED;
                 robot.outakeMotor.setPower(outakeInput);
             }
             else if (!isTransferring) {
