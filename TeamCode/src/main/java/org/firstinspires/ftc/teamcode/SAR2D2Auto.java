@@ -44,23 +44,22 @@ public class SAR2D2Auto extends LinearOpMode {
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(-90));
         drive.setPoseEstimate(startPose);
 
-        robot.setIntakePitch(0.65);
-        robot.setBucketPos(Hardware.BucketState.BUCKET_OUT.getValue());
+        robot.setIntakePitch(0.45);
         robot.closeClaw();
 
         Trajectory drive_to_bar_fsp = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(28.25, 0, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(29.25, 0, Math.toRadians(-90)))
                 .build();
 
         TrajectorySequence drive_to_fsa = drive.trajectorySequenceBuilder(drive_to_bar_fsp.end())
                 .strafeRight(1.5)
-                .lineToLinearHeading(new Pose2d(25, -33, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(25, -25.5, Math.toRadians(90)))
                 .build();
 
         TrajectorySequence push_fsa = drive.trajectorySequenceBuilder(drive_to_fsa.end())
-                .strafeRight(27)
-                .back(9)
-                .strafeLeft(44)
+                .strafeRight(31)
+                .back(11)
+                .strafeLeft(48)
                 .build();
 
         TrajectorySequence drive_to_ssa = drive.trajectorySequenceBuilder(push_fsa.end())
@@ -75,17 +74,17 @@ public class SAR2D2Auto extends LinearOpMode {
         TrajectorySequence pick_up_ssp = drive.trajectorySequenceBuilder(push_fsa.end())
                 .strafeRight(4)
                 .forward(10.25)
-                .lineToLinearHeading(new Pose2d(1.15, -19.5, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(2.15, -28.5, Math.toRadians(90)))
                 .build();
 
         TrajectorySequence place_ssp = drive.trajectorySequenceBuilder(pick_up_ssp.end())
-                .strafeRight(5)
-                .lineToLinearHeading(new Pose2d(22.25, 4, Math.toRadians(-90)))
+                .strafeRight(10)
+                .lineToLinearHeading(new Pose2d(24.25, 4, Math.toRadians(-90)))
                 .strafeLeft(3)
                 .build();
 
-        TrajectorySequence pick_up_tsp = drive.trajectorySequenceBuilder(push_fsa.end())
-                .lineToLinearHeading(new Pose2d(1.15, -19.5, Math.toRadians(90)))
+        TrajectorySequence pick_up_tsp = drive.trajectorySequenceBuilder(place_ssp.end())
+                .lineToLinearHeading(new Pose2d(2.15, -28.5, Math.toRadians(90)))
                 .build();
 
         TrajectorySequence place_tsp = drive.trajectorySequenceBuilder(pick_up_tsp.end())
@@ -102,6 +101,8 @@ public class SAR2D2Auto extends LinearOpMode {
 
         currentState = State.DRIVE_TO_BAR_FSP;
 
+        robot.setBucketPos(Hardware.BucketState.BUCKET_OUT.getValue());
+        robot.intakePitch.setPosition(0.65);
         drive.followTrajectoryAsync(drive_to_bar_fsp);
         robot.setOutakeTarget(18);
 
@@ -133,11 +134,11 @@ public class SAR2D2Auto extends LinearOpMode {
                     if (time.milliseconds() >= 500) {
                         currentState = State.DRIVE_TO_FSA;
                         drive.followTrajectorySequenceAsync(drive_to_fsa);
-                        robot.setOutakeTarget(3.5);
+                        robot.setOutakeTarget(-0.7);
                     }
                     break;
                 case DRIVE_TO_FSA:
-                    if (!drive.isBusy() && !robot.isOutakeBusy()) {
+                    if (!drive.isBusy()) {
                         currentState = State.PUSH_FSA;
                         drive.followTrajectorySequenceAsync(push_fsa);
                     }
@@ -163,14 +164,14 @@ public class SAR2D2Auto extends LinearOpMode {
                     }
                     break;
                 case CLOSE_CLAW_SSP:
-                    if (time.milliseconds() >= 250) {
+                    if (time.milliseconds() >= 500) {
                         currentState = State.WAIT_SSP;
                         robot.setOutakeTarget(23);
                         time.reset();
                     }
                     break;
                 case WAIT_SSP:
-                    if (time.milliseconds() >= 1000) {
+                    if (time.milliseconds() >= 1500) {
                         currentState = State.RAISE_OUTAKE_SSP;
                     }
                     break;
@@ -202,18 +203,18 @@ public class SAR2D2Auto extends LinearOpMode {
                     if (time.milliseconds() >= 250) {
                         currentState = State.PICK_UP_TSP;
                         drive.followTrajectorySequenceAsync(pick_up_tsp);
-                        robot.setOutakeTarget(3.5);
+                        robot.setOutakeTarget(-0.7);
                     }
                     break;
                 case PICK_UP_TSP:
-                    if (!drive.isBusy() && !robot.isOutakeBusy()) {
+                    if (!drive.isBusy()) {
                         currentState = State.CLOSE_CLAW_TSP;
                         robot.closeClaw();
                         time.reset();
                     }
                     break;
                 case CLOSE_CLAW_TSP:
-                    if (time.milliseconds() > 250) {
+                    if (time.milliseconds() > 500) {
                         robot.setOutakeTarget(19);
                         currentState = State.WAIT_TSP;
                         time.reset();
@@ -228,7 +229,7 @@ public class SAR2D2Auto extends LinearOpMode {
                     if (!drive.isBusy() && !robot.isOutakeBusy()) {
                         currentState = State.RETRACT_OUTAKE_TSP;
                         manualOutake = true;
-                        robot.outakeMotor.setPower(-0.5);
+                        robot.outakeMotor.setPower(-1);
                         time.reset();
                     }
                     break;

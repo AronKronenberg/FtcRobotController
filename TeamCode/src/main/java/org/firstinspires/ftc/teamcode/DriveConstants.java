@@ -58,5 +58,5 @@ public class DriveConstants {
     // *********** CLAW *************
     // Positions of the claw servo to pick up and drop specimens
     public static final double CLAW_OPEN = 0.8;
-    public static final double CLAW_CLOSED = 0.45;
+    public static final double CLAW_CLOSED = 0.35;
 }
