@@ -140,11 +140,11 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
             // intake motor control (moves the linear slides forward/back and up/down)
             // moves intake out/in
-            if (gamepad1.right_trigger > 0 && robot.intakeMotor.getCurrentPosition() < MAXIMUM_INTAKE_COUNT) {
+            if ((gamepad1.right_trigger > 0 || gamepad2.right_trigger > 0) && robot.intakeMotor.getCurrentPosition() < MAXIMUM_INTAKE_COUNT) {
                 // if statement has the last term to constrict the intake to stay within the limits (20x42 rectangle rule)
-                robot.intakeMotor.setPower(OUTAKE_MOTOR_MAXIMUM_SPEED * gamepad1.right_trigger); // pressure sensitive
+                robot.intakeMotor.setPower(OUTAKE_MOTOR_MAXIMUM_SPEED * (gamepad1.right_trigger + gamepad2.right_trigger)); // pressure sensitive
             }
-            else if (gamepad1.right_bumper) { // moves intake in (not pressure sensitive)
+            else if (gamepad1.right_bumper || gamepad2.right_bumper) { // moves intake in (not pressure sensitive)
                 robot.intakeMotor.setPower(-INTAKE_MOTOR_STANDARD_SPEED);
             }
             else {
@@ -155,11 +155,11 @@ public class SAR2D2TeleOp extends LinearOpMode {
 
             // *********** OUTAKE STUFF *************
             double outakeInput = Hardware.kF;
-            if (gamepad1.left_trigger > 0 && !isTransferring) { // moves outake up (pressure sensitive)
-                outakeInput += OUTAKE_MOTOR_MAXIMUM_SPEED * gamepad1.left_trigger;
+            if ((gamepad1.left_trigger > 0 || gamepad2.left_trigger > 0) && !isTransferring) { // moves outake up (pressure sensitive)
+                outakeInput += OUTAKE_MOTOR_MAXIMUM_SPEED * (gamepad1.left_trigger + gamepad2.left_trigger);
                 robot.outakeMotor.setPower(outakeInput);
             }
-            else if (gamepad1.left_bumper && !isTransferring) { // moves outake down (not pressure sensitive)
+            else if ((gamepad1.left_bumper || gamepad2.left_bumper) && !isTransferring) { // moves outake down (not pressure sensitive)
                 outakeInput -= OUTAKE_MOTOR_STANDARD_SPEED;
                 robot.outakeMotor.setPower(outakeInput);
             }
@@ -265,17 +265,17 @@ public class SAR2D2TeleOp extends LinearOpMode {
         telemetry.addData("Status", "Transferring...");
         telemetry.update();
 
-        if (time.milliseconds() <= 750) {
-            robot.setIntakePitch(0.3);
+        if (time.milliseconds() <= 500) {
+            robot.setIntakePitch(0.4);
         }
-        else if (time.milliseconds() <= 1250) {
+        else if (time.milliseconds() <= 1000) {
             robot.intakeWheel.setPower(-1);
         }
-        else if (time.milliseconds() <= 1500) {
+        else if (time.milliseconds() <= 1250) {
             robot.intakeWheel.setPower(0);
             robot.setIntakePitch(0.55);
         }
-        else if (time.milliseconds() <= 1750) {
+        else if (time.milliseconds() <= 1500) {
             robot.setOutakeTarget(5.0);
             robot.updateOutake();
             robot.setBucketPos(0.4);

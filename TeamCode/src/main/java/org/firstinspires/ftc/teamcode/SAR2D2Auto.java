@@ -49,7 +49,7 @@ public class SAR2D2Auto extends LinearOpMode {
         robot.closeClaw();
 
         Trajectory drive_to_bar_fsp = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(29.25, 0, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(29.25, 7, Math.toRadians(-90)))
                 .build();
 
         TrajectorySequence drive_to_fsa = drive.trajectorySequenceBuilder(drive_to_bar_fsp.end())
@@ -75,23 +75,24 @@ public class SAR2D2Auto extends LinearOpMode {
         TrajectorySequence pick_up_ssp = drive.trajectorySequenceBuilder(push_fsa.end())
                 .strafeRight(4)
                 .forward(10.25)
-                .lineToLinearHeading(new Pose2d(2.15, -28.5, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(3.15, -28.5, Math.toRadians(90)))
                 .build();
 
         TrajectorySequence place_ssp = drive.trajectorySequenceBuilder(pick_up_ssp.end())
                 .strafeRight(10)
-                .lineToLinearHeading(new Pose2d(24.25, 4, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(24.25, 11, Math.toRadians(-90)))
                 .strafeLeft(3)
                 .build();
 
         TrajectorySequence pick_up_tsp = drive.trajectorySequenceBuilder(place_ssp.end())
-                .lineToLinearHeading(new Pose2d(2.15, -28.5, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(6.15, -28.5, Math.toRadians(90)))
+                .strafeLeft(1)
                 .build();
 
         TrajectorySequence place_tsp = drive.trajectorySequenceBuilder(pick_up_tsp.end())
                 .strafeRight(3)
-                .lineToLinearHeading(new Pose2d(22.25, 8, Math.toRadians(-90)))
-                .strafeLeft(3.5)
+                .lineToLinearHeading(new Pose2d(20.25, 15, Math.toRadians(-90)))
+                .strafeLeft(5.5)
                 .build();
 
 
