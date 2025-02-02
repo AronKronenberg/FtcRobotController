@@ -272,14 +272,11 @@ public class TrajectorySequenceBuilder {
         return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(endPose, endHeading, currentVelConstraint, currentAccelConstraint));
     }
 
-    public TrajectorySequenceBuilder splineToSplineHeading(
-            Pose2d endPose,
-            double endHeading,
-            TrajectoryVelocityConstraint velConstraint,
-            TrajectoryAccelerationConstraint accelConstraint
-    ) {
-        return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(endPose, endHeading, velConstraint, accelConstraint));
-    }
+//    public TrajectorySequenceBuilder splineToSplineHeading(
+//            Pose2d endPose
+//    ) {
+//        return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(endPose, endHeading, velConstraint, accelConstraint));
+//    }
 
     private TrajectorySequenceBuilder addPath(AddPathCallback callback) {
         if (currentTrajectoryBuilder == null) newPath();
